@@ -7,7 +7,7 @@ import (
 	"time"
 
 	log "github.com/Elmar006/todo_grpc/internal/logger"
-	model "github.com/Elmar006/todo_grpc/internal/model"
+	"github.com/Elmar006/todo_grpc/internal/model"
 )
 
 type RepositoryDB struct {
