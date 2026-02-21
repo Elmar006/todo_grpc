@@ -14,11 +14,15 @@ type RepositoryDB struct {
 	*sql.DB
 }
 
-var ErrNotFound = errors.New("Failed: RowsAffected count = 0")
+var (
+	ErrNotFound    = errors.New("Failed: RowsAffected count = 0")
+	ErrInvalidData = errors.New("Invalid data")
+)
 
 func (r *RepositoryDB) Create(ctx context.Context, task *model.Model) (int64, error) {
 	if task.Title == "" {
-		return 0, errors.New("title is required")
+		log.L().Errorf("Title is required. Err: %v", ErrInvalidData)
+		return 0, ErrInvalidData
 	}
 
 	query := `INSERT INTO task (title, description) VALUES (?, ?)`
@@ -34,6 +38,7 @@ func (r *RepositoryDB) Create(ctx context.Context, task *model.Model) (int64, er
 		return 0, err
 	}
 
+	log.L().Info("The data was successfully added to the DB")
 	return id, nil
 }
 
@@ -44,12 +49,15 @@ func (r *RepositoryDB) GetByID(ctx context.Context, id string) (*model.Model, er
 	err := r.QueryRowContext(ctx, query, id).Scan(&model.ID, &model.Title, &model.Description, &model.Completed, &model.CreatedAt, &model.UpdatedAt)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
+			log.L().Error("errors.Is != nil")
 			return nil, nil
 		}
 
+		log.L().Errorf("Failed while retrieving data by ID using the GetByID method. Err: %v", err)
 		return nil, err
 	}
 
+	log.L().Info("ID data was successfully received")
 	return model, nil
 }
 
@@ -59,6 +67,7 @@ func (r *RepositoryDB) List(ctx context.Context, filter string) ([]*model.Model,
 
 	rows, err := r.QueryContext(ctx, query, "%"+filter+"%", "%"+filter+"%")
 	if err != nil {
+		log.L().Errorf("Failed while retrieving data by search filter using the List method. Err: %v", err)
 		return nil, err
 	}
 
@@ -67,6 +76,7 @@ func (r *RepositoryDB) List(ctx context.Context, filter string) ([]*model.Model,
 	for rows.Next() {
 		task := model.Model{}
 		if err := rows.Scan(&task.ID, &task.Title, &task.Description, &task.Completed, &task.CreatedAt, &task.UpdatedAt); err != nil {
+			log.L().Errorf("Failed when scanning data in the List method. Err: %v", err)
 			return nil, err
 		}
 
@@ -74,9 +84,11 @@ func (r *RepositoryDB) List(ctx context.Context, filter string) ([]*model.Model,
 	}
 
 	if rows.Err() != nil {
+		log.L().Errorf("Error during rows iteration in List: %v", err)
 		return nil, rows.Err()
 	}
 
+	log.L().Info("Filter data has been successfully received.")
 	return tasks, nil
 }
 
@@ -86,6 +98,7 @@ func (r *RepositoryDB) Update(ctx context.Context, task *model.Model) error {
 
 	res, err := r.ExecContext(ctx, query, task.Title, task.Description, task.Completed, task.UpdatedAt, task.ID)
 	if err != nil {
+		log.L().Errorf("Error updating data in the table. Err: %v", err)
 		return err
 	}
 
@@ -94,9 +107,11 @@ func (r *RepositoryDB) Update(ctx context.Context, task *model.Model) error {
 		return err
 	}
 	if count == 0 {
+		log.L().Errorf("The data in the column has not been updated. Err: %v", ErrNotFound)
 		return ErrNotFound
 	}
 
+	log.L().Info("The data in the column has been updated.")
 	return nil
 }
 
@@ -105,6 +120,7 @@ func (r *RepositoryDB) DeleteByID(ctx context.Context, id string) error {
 
 	res, err := r.ExecContext(ctx, query, id)
 	if err != nil {
+		log.L().Errorf("Failed when deleting data. Err: %v", err)
 		return err
 	}
 
@@ -113,8 +129,10 @@ func (r *RepositoryDB) DeleteByID(ctx context.Context, id string) error {
 		return err
 	}
 	if count == 0 {
+		log.L().Errorf("The data in the column has not been delete. Err: %v", ErrNotFound)
 		return ErrNotFound
 	}
 
+	log.L().Info("The data in the column has been successfully deleted")
 	return nil
 }
