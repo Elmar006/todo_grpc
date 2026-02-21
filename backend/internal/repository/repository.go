@@ -49,7 +49,7 @@ func (r *RepositoryDB) GetByID(ctx context.Context, id string) (*model.Model, er
 	err := r.QueryRowContext(ctx, query, id).Scan(&model.ID, &model.Title, &model.Description, &model.Completed, &model.CreatedAt, &model.UpdatedAt)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			log.L().Error("errors.Is != nil")
+			log.L().Info("Task not found")
 			return nil, nil
 		}
 
@@ -83,9 +83,9 @@ func (r *RepositoryDB) List(ctx context.Context, filter string) ([]*model.Model,
 		tasks = append(tasks, &task)
 	}
 
-	if rows.Err() != nil {
+	if err = rows.Err(); err != nil {
 		log.L().Errorf("Error during rows iteration in List: %v", err)
-		return nil, rows.Err()
+		return nil, err
 	}
 
 	log.L().Info("Filter data has been successfully received.")
