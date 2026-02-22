@@ -3,14 +3,10 @@ package service
 import (
 	"context"
 	"errors"
-
-	//"errors"
 	"testing"
-	//"time"
 
 	"github.com/Elmar006/todo_grpc/internal/model"
 	"github.com/Elmar006/todo_grpc/internal/repository"
-	//"github.com/Elmar006/todo_grpc/internal/repository"
 )
 
 type fakeRepo struct {
