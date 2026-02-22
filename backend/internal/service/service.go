@@ -17,7 +17,7 @@ var (
 )
 
 type TaskRepository interface {
-	Create(ctx context.Context, task *model.Model) (int64, error)
+	Create(ctx context.Context, title, description string) (int64, error)
 	GetByID(ctx context.Context, id string) (*model.Model, error)
 	List(ctx context.Context, filter string) ([]*model.Model, error)
 	Update(ctx context.Context, task *model.Model) error
@@ -32,9 +32,9 @@ func NewTaskService(repo TaskRepository) *TaskService {
 	return &TaskService{repo: repo}
 }
 
-func (s *TaskService) CreateTask(ctx context.Context, title, description string) (*model.Model, error) {
+func (s *TaskService) CreateTask(ctx context.Context, title, description string) (int64, error) {
 	if title == "" {
-		return nil, ErrInvalidData
+		return 0, ErrInvalidData
 	}
 
 	task := &model.Model{
@@ -45,15 +45,15 @@ func (s *TaskService) CreateTask(ctx context.Context, title, description string)
 		UpdatedAt:   time.Now(),
 	}
 
-	id, err := s.repo.Create(ctx, task)
+	id, err := s.repo.Create(ctx, title, description)
 	if err != nil {
 		log.L().Error(err)
-		return nil, err
+		return 0, err
 	}
 	task.ID = strconv.FormatInt(id, 10)
 
 	log.L().Infof("Task created successfully: ID=%s, Title=%q", task.ID, task.Title)
-	return task, nil
+	return id, nil
 }
 
 func (s *TaskService) GetTask(ctx context.Context, id string) (*model.Model, error) {
