@@ -19,14 +19,14 @@ var (
 	ErrInvalidData = errors.New("Invalid data")
 )
 
-func (r *RepositoryDB) Create(ctx context.Context, task *model.Model) (int64, error) {
-	if task.Title == "" {
+func (r *RepositoryDB) Create(ctx context.Context, title, description string) (int64, error) {
+	if title == "" {
 		log.L().Errorf("Title is required. Err: %v", ErrInvalidData)
 		return 0, ErrInvalidData
 	}
 
 	query := `INSERT INTO task (title, description) VALUES (?, ?)`
-	res, err := r.ExecContext(ctx, query, task.Title, task.Description)
+	res, err := r.ExecContext(ctx, query, title, description)
 	if err != nil {
 		log.L().Errorf("Failed to append data on table 'task'. Err: %v", err)
 		return 0, err
@@ -115,7 +115,7 @@ func (r *RepositoryDB) Update(ctx context.Context, task *model.Model) error {
 	return nil
 }
 
-func (r *RepositoryDB) DeleteByID(ctx context.Context, id string) error {
+func (r *RepositoryDB) Delete(ctx context.Context, id string) error {
 	query := "DELETE FROM task WHERE id = ?"
 
 	res, err := r.ExecContext(ctx, query, id)
