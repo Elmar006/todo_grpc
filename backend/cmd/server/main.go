@@ -1,49 +1,45 @@
 package main
 
 import (
-	//"context"
 	"fmt"
+	"log"
 	"net"
-	"os"
 
 	"github.com/Elmar006/todo_grpc/internal/config"
 	"github.com/Elmar006/todo_grpc/internal/db"
-	log "github.com/Elmar006/todo_grpc/internal/logger"
+	"github.com/Elmar006/todo_grpc/internal/grpc/handler"
+	"github.com/Elmar006/todo_grpc/internal/repository"
+	"github.com/Elmar006/todo_grpc/internal/service"
+	todo "github.com/Elmar006/todo_grpc/proto/gen/todoService"
 
-	//"github.com/Elmar006/todo_grpc/internal/repository"
-	//"github.com/Elmar006/todo_grpc/internal/service"
 	"google.golang.org/grpc"
 )
 
 func main() {
 	cfg, err := config.Load()
 	if err != nil {
-		log.L().Errorf("Failed to load config: %v", err)
-		os.Exit(1)
+		log.Fatalf("Failed to load config: %v", err)
 	}
 
-	dbCon, err := db.Init(cfg.DBPath)
+	dbConn, err := db.Init(cfg.DBPath)
 	if err != nil {
-		log.Log.Errorf("Failed to init db: %v", err)
-		os.Exit(1)
+		log.Fatalf("Failed to init db: %v", err)
 	}
-	defer dbCon.Close()
+	defer dbConn.Close()
 
-	//repo := &repository.RepositoryDB{DB: dbCon}
-	//s := service.NewTaskService(repo)
-	// конект к грпс хэнндлерам с аргументом (s)
-	port := fmt.Sprintf(":%d", cfg.GRPCPort)
-
-	lis, err := net.Listen("tcp", port)
-	if err != nil {
-		log.L().Errorf("Failed to listen serve on port: %s. Err: %v\n", port, err)
-		os.Exit(1)
-	}
-
+	repo := &repository.RepositoryDB{DB: dbConn}
+	taskService := service.NewTaskService(repo)
+	taskHandler := handler.NewTaskHandler(taskService)
 	grpcServer := grpc.NewServer()
-	log.L().Infof("Listening gRPC server on port %d", port)
-	if err := grpcServer.Serve(lis); err != nil {
-		log.L().Errorf("Failed to server star. Err: %v", err)
-		os.Exit(1)
+	todo.RegisterTodoServiceServer(grpcServer, taskHandler)
+
+	listener, err := net.Listen("tcp", fmt.Sprintf(":%d", cfg.GRPCPort))
+	if err != nil {
+		log.Fatalf("Failed to listen: %v", err)
+	}
+
+	log.Printf("gRPC server listening on port %d", cfg.GRPCPort)
+	if err := grpcServer.Serve(listener); err != nil {
+		log.Fatalf("Failed to serve: %v", err)
 	}
 }

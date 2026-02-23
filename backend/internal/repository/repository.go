@@ -19,27 +19,36 @@ var (
 	ErrInvalidData = errors.New("Invalid data")
 )
 
-func (r *RepositoryDB) Create(ctx context.Context, title, description string) (int64, error) {
+func (r *RepositoryDB) Create(ctx context.Context, title, description string) (*model.Model, error) {
 	if title == "" {
 		log.L().Errorf("Title is required. Err: %v", ErrInvalidData)
-		return 0, ErrInvalidData
+		return nil, ErrInvalidData
 	}
 
 	query := `INSERT INTO task (title, description) VALUES (?, ?)`
 	res, err := r.ExecContext(ctx, query, title, description)
 	if err != nil {
 		log.L().Errorf("Failed to append data on table 'task'. Err: %v", err)
-		return 0, err
+		return nil, err
 	}
 
 	id, err := res.LastInsertId()
 	if err != nil {
 		log.L().Errorf("Failed when receiving data. Err: %v", err)
-		return 0, err
+		return nil, err
+	}
+
+	task := &model.Model{
+		ID:          id,
+		Title:       title,
+		Description: &description,
+		Completed:   false,
+		CreatedAt:   time.Now(),
+		UpdatedAt:   time.Now(),
 	}
 
 	log.L().Info("The data was successfully added to the DB")
-	return id, nil
+	return task, nil
 }
 
 func (r *RepositoryDB) GetByID(ctx context.Context, id int64) (*model.Model, error) {

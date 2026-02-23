@@ -10,7 +10,6 @@ import (
 	"github.com/Elmar006/todo_grpc/internal/service"
 	todo "github.com/Elmar006/todo_grpc/proto/gen/todoService"
 
-	//"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
