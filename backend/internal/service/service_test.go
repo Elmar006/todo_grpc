@@ -11,17 +11,17 @@ import (
 
 type fakeRepo struct {
 	createFunc  func(ctx context.Context, title, description string) (int64, error)
-	getByIdFunc func(ctx context.Context, id string) (*model.Model, error)
+	getByIdFunc func(ctx context.Context, id int64) (*model.Model, error)
 	listFunc    func(ctx context.Context, filter string) ([]*model.Model, error)
 	updateFunc  func(ctx context.Context, task *model.Model) error
-	deleteFunc  func(ctx context.Context, id string) error
+	deleteFunc  func(ctx context.Context, id int64) error
 }
 
 func (f *fakeRepo) Create(ctx context.Context, title, description string) (int64, error) {
 	return f.createFunc(ctx, title, description)
 }
 
-func (f *fakeRepo) GetByID(ctx context.Context, id string) (*model.Model, error) {
+func (f *fakeRepo) GetByID(ctx context.Context, id int64) (*model.Model, error) {
 	return f.getByIdFunc(ctx, id)
 }
 
@@ -33,7 +33,7 @@ func (f *fakeRepo) Update(ctx context.Context, task *model.Model) error {
 	return f.updateFunc(ctx, task)
 }
 
-func (f *fakeRepo) Delete(ctx context.Context, id string) error {
+func (f *fakeRepo) Delete(ctx context.Context, id int64) error {
 	return f.deleteFunc(ctx, id)
 }
 
@@ -75,14 +75,14 @@ func TestCreateTaskInvalid(t *testing.T) {
 
 func TestGetTaskCorrected(t *testing.T) {
 	testTaskRequest := &model.Model{
-		ID:    "123",
+		ID:    123,
 		Title: "Test Title",
 	}
 
 	taskCheck := &fakeRepo{
-		getByIdFunc: func(ctx context.Context, id string) (*model.Model, error) {
-			if id != "123" {
-				t.Errorf("Expected id: 123, got %s", id)
+		getByIdFunc: func(ctx context.Context, id int64) (*model.Model, error) {
+			if id != 123 {
+				t.Errorf("Expected id: 123, got %d", id)
 			}
 
 			return testTaskRequest, nil
@@ -90,7 +90,7 @@ func TestGetTaskCorrected(t *testing.T) {
 	}
 
 	service := NewTaskService(taskCheck)
-	task, err := service.GetTask(context.Background(), "123")
+	task, err := service.GetTask(context.Background(), 123)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -101,13 +101,13 @@ func TestGetTaskCorrected(t *testing.T) {
 
 func TestGetTaskNotFound(t *testing.T) {
 	taskCheck := &fakeRepo{
-		getByIdFunc: func(ctx context.Context, id string) (*model.Model, error) {
+		getByIdFunc: func(ctx context.Context, id int64) (*model.Model, error) {
 			return nil, nil
 		},
 	}
 
 	service := NewTaskService(taskCheck)
-	task, err := service.GetTask(context.Background(), "123")
+	task, err := service.GetTask(context.Background(), 123)
 	if !errors.Is(err, ErrTaskNotFound) {
 		t.Errorf("expected ErrTaskNotFound, got %v", err)
 	}
@@ -119,21 +119,21 @@ func TestGetTaskNotFound(t *testing.T) {
 func TestGetTaskRepoError(t *testing.T) {
 	repoErr := errors.New("Data Base Error")
 	taskCheck := &fakeRepo{
-		getByIdFunc: func(ctx context.Context, id string) (*model.Model, error) {
+		getByIdFunc: func(ctx context.Context, id int64) (*model.Model, error) {
 			return nil, repoErr
 		},
 	}
 
 	service := NewTaskService(taskCheck)
-	_, err := service.GetTask(context.Background(), "123")
+	_, err := service.GetTask(context.Background(), 123)
 	if err != repoErr {
 		t.Errorf("expected repo error %v, got %v", repoErr, err)
 	}
 }
 func TestListTask(t *testing.T) {
 	tasksTest := []*model.Model{
-		{ID: "1"},
-		{ID: "2"},
+		{ID: 1},
+		{ID: 2},
 	}
 	taskCheck := &fakeRepo{
 		listFunc: func(ctx context.Context, filter string) ([]*model.Model, error) {
@@ -160,8 +160,8 @@ func TestUpdateTaskSuccess(t *testing.T) {
 	taskCheck := &fakeRepo{
 		updateFunc: func(ctx context.Context, task *model.Model) error {
 			called = true
-			if task.ID != "123" {
-				t.Errorf("expected id 123, got %s", task.ID)
+			if task.ID != 123 {
+				t.Errorf("expected id 123, got %d", task.ID)
 			}
 
 			return nil
@@ -169,7 +169,7 @@ func TestUpdateTaskSuccess(t *testing.T) {
 	}
 
 	service := NewTaskService(taskCheck)
-	if err := service.UpdateTask(context.Background(), &model.Model{ID: "123"}); err != nil {
+	if err := service.UpdateTask(context.Background(), &model.Model{ID: 123}); err != nil {
 		t.Fatal(err)
 	}
 	if !called {
@@ -185,7 +185,7 @@ func TestUpdateTaskNotFound(t *testing.T) {
 	}
 
 	service := NewTaskService(taskCheck)
-	if err := service.UpdateTask(context.Background(), &model.Model{ID: "123"}); err != nil {
+	if err := service.UpdateTask(context.Background(), &model.Model{ID: 123}); err != nil {
 		if !errors.Is(err, ErrTaskNotFound) {
 			t.Errorf("expected ErrTaskNotFound, got %v", err)
 		}
@@ -195,10 +195,10 @@ func TestUpdateTaskNotFound(t *testing.T) {
 func TestDeleteTaskSuccess(t *testing.T) {
 	called := false
 	taskCheck := &fakeRepo{
-		deleteFunc: func(ctx context.Context, id string) error {
+		deleteFunc: func(ctx context.Context, id int64) error {
 			called = true
-			if id != "123" {
-				t.Errorf("expected id 123, got %s", id)
+			if id != 123 {
+				t.Errorf("expected id 123, got %d", id)
 			}
 
 			return nil
@@ -206,7 +206,7 @@ func TestDeleteTaskSuccess(t *testing.T) {
 	}
 
 	service := NewTaskService(taskCheck)
-	if err := service.DeleteTask(context.Background(), "123"); err != nil {
+	if err := service.DeleteTask(context.Background(), 123); err != nil {
 		t.Fatal(err)
 	}
 	if !called {
@@ -216,13 +216,13 @@ func TestDeleteTaskSuccess(t *testing.T) {
 
 func TestDeleteTaskNotFound(t *testing.T) {
 	taskCheck := &fakeRepo{
-		deleteFunc: func(ctx context.Context, id string) error {
+		deleteFunc: func(ctx context.Context, id int64) error {
 			return repository.ErrNotFound
 		},
 	}
 
 	service := NewTaskService(taskCheck)
-	if err := service.DeleteTask(context.Background(), "123"); err != nil {
+	if err := service.DeleteTask(context.Background(), 123); err != nil {
 		if !errors.Is(err, ErrTaskNotFound) {
 			t.Errorf("expected ErrTaskNotFound, got %v", err)
 		}

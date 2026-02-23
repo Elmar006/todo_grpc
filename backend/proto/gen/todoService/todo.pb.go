@@ -23,7 +23,7 @@ const (
 
 type Task struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	Title         string                 `protobuf:"bytes,2,opt,name=title,proto3" json:"title,omitempty"`
 	Description   string                 `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
 	Completed     bool                   `protobuf:"varint,4,opt,name=completed,proto3" json:"completed,omitempty"`
@@ -63,11 +63,11 @@ func (*Task) Descriptor() ([]byte, []int) {
 	return file_todoService_todo_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *Task) GetId() string {
+func (x *Task) GetId() int64 {
 	if x != nil {
 		return x.Id
 	}
-	return ""
+	return 0
 }
 
 func (x *Task) GetTitle() string {
@@ -159,7 +159,7 @@ func (x *CreateTaskRequest) GetDescription() string {
 
 type GetTaskRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -194,11 +194,11 @@ func (*GetTaskRequest) Descriptor() ([]byte, []int) {
 	return file_todoService_todo_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *GetTaskRequest) GetId() string {
+func (x *GetTaskRequest) GetId() int64 {
 	if x != nil {
 		return x.Id
 	}
-	return ""
+	return 0
 }
 
 type ListTasksRequest struct {
@@ -283,7 +283,7 @@ func (x *ListTasksResponse) GetTasks() []*Task {
 
 type UpdateTaskRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	Title         *string                `protobuf:"bytes,2,opt,name=title,proto3,oneof" json:"title,omitempty"`
 	Description   *string                `protobuf:"bytes,3,opt,name=description,proto3,oneof" json:"description,omitempty"`
 	Completed     *bool                  `protobuf:"varint,4,opt,name=completed,proto3,oneof" json:"completed,omitempty"`
@@ -321,11 +321,11 @@ func (*UpdateTaskRequest) Descriptor() ([]byte, []int) {
 	return file_todoService_todo_proto_rawDescGZIP(), []int{5}
 }
 
-func (x *UpdateTaskRequest) GetId() string {
+func (x *UpdateTaskRequest) GetId() int64 {
 	if x != nil {
 		return x.Id
 	}
-	return ""
+	return 0
 }
 
 func (x *UpdateTaskRequest) GetTitle() string {
@@ -351,7 +351,7 @@ func (x *UpdateTaskRequest) GetCompleted() bool {
 
 type DeleteTaskRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -386,11 +386,11 @@ func (*DeleteTaskRequest) Descriptor() ([]byte, []int) {
 	return file_todoService_todo_proto_rawDescGZIP(), []int{6}
 }
 
-func (x *DeleteTaskRequest) GetId() string {
+func (x *DeleteTaskRequest) GetId() int64 {
 	if x != nil {
 		return x.Id
 	}
-	return ""
+	return 0
 }
 
 type DeleteTaskResponse struct {
@@ -435,7 +435,7 @@ const file_todoService_todo_proto_rawDesc = "" +
 	"\n" +
 	"\x16todoService/todo.proto\x12\vtodoService\"\xa8\x01\n" +
 	"\x04Task\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x14\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x14\n" +
 	"\x05title\x18\x02 \x01(\tR\x05title\x12 \n" +
 	"\vdescription\x18\x03 \x01(\tR\vdescription\x12\x1c\n" +
 	"\tcompleted\x18\x04 \x01(\bR\tcompleted\x12\x1d\n" +
@@ -446,12 +446,12 @@ const file_todoService_todo_proto_rawDesc = "" +
 	"\x05title\x18\x01 \x01(\tR\x05title\x12 \n" +
 	"\vdescription\x18\x02 \x01(\tR\vdescription\" \n" +
 	"\x0eGetTaskRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\"\x12\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\"\x12\n" +
 	"\x10ListTasksRequest\"<\n" +
 	"\x11ListTasksResponse\x12'\n" +
 	"\x05tasks\x18\x01 \x03(\v2\x11.todoService.TaskR\x05tasks\"\xb0\x01\n" +
 	"\x11UpdateTaskRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x19\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x19\n" +
 	"\x05title\x18\x02 \x01(\tH\x00R\x05title\x88\x01\x01\x12%\n" +
 	"\vdescription\x18\x03 \x01(\tH\x01R\vdescription\x88\x01\x01\x12!\n" +
 	"\tcompleted\x18\x04 \x01(\bH\x02R\tcompleted\x88\x01\x01B\b\n" +
@@ -460,7 +460,7 @@ const file_todoService_todo_proto_rawDesc = "" +
 	"\n" +
 	"_completed\"#\n" +
 	"\x11DeleteTaskRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\"\x14\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\"\x14\n" +
 	"\x12DeleteTaskResponse2\xe5\x02\n" +
 	"\vTodoService\x12?\n" +
 	"\n" +

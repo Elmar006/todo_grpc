@@ -42,7 +42,7 @@ func (r *RepositoryDB) Create(ctx context.Context, title, description string) (i
 	return id, nil
 }
 
-func (r *RepositoryDB) GetByID(ctx context.Context, id string) (*model.Model, error) {
+func (r *RepositoryDB) GetByID(ctx context.Context, id int64) (*model.Model, error) {
 	model := &model.Model{}
 	query := "SELECT id, title, description, completed, created_at, updated_at FROM task WHERE id = ?"
 
@@ -115,7 +115,7 @@ func (r *RepositoryDB) Update(ctx context.Context, task *model.Model) error {
 	return nil
 }
 
-func (r *RepositoryDB) Delete(ctx context.Context, id string) error {
+func (r *RepositoryDB) Delete(ctx context.Context, id int64) error {
 	query := "DELETE FROM task WHERE id = ?"
 
 	res, err := r.ExecContext(ctx, query, id)
