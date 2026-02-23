@@ -10,14 +10,14 @@ import (
 )
 
 type fakeRepo struct {
-	createFunc  func(ctx context.Context, title, description string) (int64, error)
+	createFunc  func(ctx context.Context, title, description string) (*model.Model, error)
 	getByIdFunc func(ctx context.Context, id int64) (*model.Model, error)
 	listFunc    func(ctx context.Context, filter string) ([]*model.Model, error)
 	updateFunc  func(ctx context.Context, task *model.Model) error
 	deleteFunc  func(ctx context.Context, id int64) error
 }
 
-func (f *fakeRepo) Create(ctx context.Context, title, description string) (int64, error) {
+func (f *fakeRepo) Create(ctx context.Context, title, description string) (*model.Model, error) {
 	return f.createFunc(ctx, title, description)
 }
 
@@ -39,7 +39,7 @@ func (f *fakeRepo) Delete(ctx context.Context, id int64) error {
 
 func TestCreateTaskCorrected(t *testing.T) {
 	taskCheck := &fakeRepo{
-		createFunc: func(ctx context.Context, title, description string) (int64, error) {
+		createFunc: func(ctx context.Context, title, description string) (*model.Model, error) {
 			if title != "Test Task" {
 				t.Errorf("Expected title 'Test Task', got %q", title)
 			}
@@ -47,17 +47,22 @@ func TestCreateTaskCorrected(t *testing.T) {
 				t.Errorf("Expected description 'Test Desc', got %q", description)
 			}
 			var id int64 = 123
-			return id, nil
+			task := model.Model{
+				ID:          id,
+				Title:       title,
+				Description: &description,
+			}
+			return &task, nil
 		},
 	}
 
 	service := NewTaskService(taskCheck)
-	id, err := service.CreateTask(context.Background(), "Test Task", "Test Desc")
+	task, err := service.CreateTask(context.Background(), "Test Task", "Test Desc")
 	if err != nil {
 		t.Fatalf("expected no error, got %v", err)
 	}
-	if id != 123 {
-		t.Errorf("expected ID 123, got %d", id)
+	if task.ID != 123 {
+		t.Errorf("expected ID 123, got %d", task.ID)
 	}
 }
 

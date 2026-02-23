@@ -203,6 +203,7 @@ func (x *GetTaskRequest) GetId() int64 {
 
 type ListTasksRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
+	Filter        string                 `protobuf:"bytes,1,opt,name=filter,proto3" json:"filter,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -235,6 +236,13 @@ func (x *ListTasksRequest) ProtoReflect() protoreflect.Message {
 // Deprecated: Use ListTasksRequest.ProtoReflect.Descriptor instead.
 func (*ListTasksRequest) Descriptor() ([]byte, []int) {
 	return file_todoService_todo_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *ListTasksRequest) GetFilter() string {
+	if x != nil {
+		return x.Filter
+	}
+	return ""
 }
 
 type ListTasksResponse struct {
@@ -446,8 +454,9 @@ const file_todoService_todo_proto_rawDesc = "" +
 	"\x05title\x18\x01 \x01(\tR\x05title\x12 \n" +
 	"\vdescription\x18\x02 \x01(\tR\vdescription\" \n" +
 	"\x0eGetTaskRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\x03R\x02id\"\x12\n" +
-	"\x10ListTasksRequest\"<\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\"*\n" +
+	"\x10ListTasksRequest\x12\x16\n" +
+	"\x06filter\x18\x01 \x01(\tR\x06filter\"<\n" +
 	"\x11ListTasksResponse\x12'\n" +
 	"\x05tasks\x18\x01 \x03(\v2\x11.todoService.TaskR\x05tasks\"\xb0\x01\n" +
 	"\x11UpdateTaskRequest\x12\x0e\n" +

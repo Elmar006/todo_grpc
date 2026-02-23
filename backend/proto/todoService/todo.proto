@@ -30,7 +30,9 @@ message GetTaskRequest {
     int64 id = 1;
 }
 
-message ListTasksRequest {}
+message ListTasksRequest {
+    string filter = 1;
+}
 
 message ListTasksResponse {
     repeated Task tasks = 1;
