@@ -3,7 +3,6 @@ package service
 import (
 	"context"
 	"errors"
-	"time"
 
 	log "github.com/Elmar006/todo_grpc/internal/logger"
 	"github.com/Elmar006/todo_grpc/internal/model"
@@ -36,17 +35,9 @@ func (s *TaskService) CreateTask(ctx context.Context, title, description string)
 		return nil, ErrInvalidData
 	}
 
-	task := &model.Model{
-		Title:       title,
-		Description: &description,
-		Completed:   false,
-		CreatedAt:   time.Now(),
-		UpdatedAt:   time.Now(),
-	}
-
 	task, err := s.repo.Create(ctx, title, description)
 	if err != nil {
-		log.L().Error(err)
+		log.L().Errorf("Failed to create task: %v", err)
 		return nil, err
 	}
 
@@ -57,7 +48,7 @@ func (s *TaskService) CreateTask(ctx context.Context, title, description string)
 func (s *TaskService) GetTask(ctx context.Context, id int64) (*model.Model, error) {
 	task, err := s.repo.GetByID(ctx, id)
 	if err != nil {
-		log.L().Error(err)
+		log.L().Errorf("Failed to get task: %v", err)
 		return nil, err
 	}
 	if task == nil {
@@ -71,38 +62,38 @@ func (s *TaskService) GetTask(ctx context.Context, id int64) (*model.Model, erro
 func (s *TaskService) ListTask(ctx context.Context, filter string) ([]*model.Model, error) {
 	tasks, err := s.repo.List(ctx, filter)
 	if err != nil {
-		log.L().Error(err)
+		log.L().Errorf("Failed to list tasks: %v", err)
 		return nil, err
 	}
 
-	log.L().Infof("Tasks listed with filter %q, count=%d", filter, len(tasks))
+	log.L().Infof("Listed %d tasks with filter %q", len(tasks), filter)
 	return tasks, nil
 }
 
 func (s *TaskService) UpdateTask(ctx context.Context, task *model.Model) error {
 	if err := s.repo.Update(ctx, task); err != nil {
 		if errors.Is(err, repository.ErrNotFound) {
-			log.L().Error(ErrTaskNotFound)
+			log.L().Errorf("Task not found for update, ID=%d", task.ID)
 			return ErrTaskNotFound
 		}
-		log.L().Error(err)
+		log.L().Errorf("Failed to update task: %v", err)
 		return err
 	}
 
-	log.L().Infof("Task updated successfully: ID=%d", task.ID)
+	log.L().Infof("Task updated: ID=%d", task.ID)
 	return nil
 }
 
 func (s *TaskService) DeleteTask(ctx context.Context, id int64) error {
 	if err := s.repo.Delete(ctx, id); err != nil {
 		if errors.Is(err, repository.ErrNotFound) {
-			log.L().Error(ErrTaskNotFound)
+			log.L().Errorf("Task not found for deletion, ID=%d", id)
 			return ErrTaskNotFound
 		}
-		log.L().Error(err)
+		log.L().Errorf("Failed to delete task: %v", err)
 		return err
 	}
 
-	log.L().Infof("Task deleted successfully: ID=%d", id)
+	log.L().Infof("Task deleted: ID=%d", id)
 	return nil
 }

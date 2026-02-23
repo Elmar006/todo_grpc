@@ -13,6 +13,7 @@ import (
 	todo "github.com/Elmar006/todo_grpc/proto/gen/todoService"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
 )
 
 func main() {
@@ -21,17 +22,19 @@ func main() {
 		log.Fatalf("Failed to load config: %v", err)
 	}
 
-	dbConn, err := db.Init(cfg.DBPath)
-	if err != nil {
+	if err := db.Init("/data/todo.db"); err != nil {
 		log.Fatalf("Failed to init db: %v", err)
 	}
-	defer dbConn.Close()
+	defer db.DB.Close()
 
-	repo := &repository.RepositoryDB{DB: dbConn}
+	repo := &repository.RepositoryDB{DB: db.DB}
 	taskService := service.NewTaskService(repo)
 	taskHandler := handler.NewTaskHandler(taskService)
+
 	grpcServer := grpc.NewServer()
 	todo.RegisterTodoServiceServer(grpcServer, taskHandler)
+
+	reflection.Register(grpcServer)
 
 	listener, err := net.Listen("tcp", fmt.Sprintf(":%d", cfg.GRPCPort))
 	if err != nil {

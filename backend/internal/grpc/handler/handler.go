@@ -23,23 +23,23 @@ func NewTaskHandler(taskService *service.TaskService) *TaskHandler {
 	return &TaskHandler{taskService: taskService}
 }
 
-func (h *TaskHandler) CreateTaask(ctx context.Context, req *todo.CreateTaskRequest) (*todo.Task, error) {
+func (h *TaskHandler) CreateTask(ctx context.Context, req *todo.CreateTaskRequest) (*todo.Task, error) {
 	task, err := h.taskService.CreateTask(ctx, req.GetTitle(), req.GetDescription())
 	if err != nil {
 		if errors.Is(err, service.ErrInvalidData) {
 			return nil, status.Error(codes.InvalidArgument, err.Error())
 		}
-		log.L().Errorf("CreateTaask failed: %v", err)
+		log.L().Errorf("CreateTask failed: %v", err)
 		return nil, status.Error(codes.Internal, "internal error")
 	}
 
-	id := task.ID
-
 	return &todo.Task{
-		Id:          id,
-		Title:       req.GetTitle(),
-		Description: req.GetDescription(),
-		Completed:   false,
+		Id:          task.ID,
+		Title:       task.Title,
+		Description: *task.Description,
+		Completed:   task.Completed,
+		CreatedAt:   task.CreatedAt.Format(time.RFC3339),
+		UpdateAt:    task.UpdatedAt.Format(time.RFC3339),
 	}, nil
 }
 
@@ -114,10 +114,16 @@ func (h *TaskHandler) DeleteTask(ctx context.Context, req *todo.DeleteTaskReques
 }
 
 func convertStruct(m *model.Model) *todo.Task {
+	desc := ""
+	if m.Description != nil {
+		desc = *m.Description
+	}
+
 	return &todo.Task{
 		Id:          m.ID,
 		Title:       m.Title,
-		Description: *m.Description,
+		Description: desc,
+		Completed:   m.Completed,
 		CreatedAt:   m.CreatedAt.Format(time.RFC3339),
 		UpdateAt:    m.UpdatedAt.Format(time.RFC3339),
 	}

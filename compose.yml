@@ -1,0 +1,15 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: todo_backend
+    environment:
+      GRPC_PORT: 50051
+    ports:
+      - "50051:50051"
+    volumes:
+      - todo_data:/data
+
+volumes:
+  todo_data:

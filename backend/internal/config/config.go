@@ -7,7 +7,6 @@ import (
 
 type Config struct {
 	GRPCPort int
-	DBPath   string
 }
 
 func Load() (*Config, error) {
@@ -21,10 +20,7 @@ func Load() (*Config, error) {
 		}
 	}
 
-	dbPath := os.Getenv("DB_PATH")
-	if dbPath == "" {
-		dbPath = "task.db"
-	}
-
-	return &Config{GRPCPort: port, DBPath: dbPath}, nil
+	return &Config{
+		GRPCPort: port,
+	}, nil
 }
