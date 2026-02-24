@@ -1,0 +1,10 @@
+*.out
+*.app
+*.test
+*.prof
+
+.db
+
+server.exe
+
+.env

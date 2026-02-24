@@ -1,5 +1,4 @@
 syntax = "proto3";
-
 package todoService;
 
 option go_package = "github.com/Elmar006/todo_grpc/backend/proto/gen/todoService;todoService";
@@ -18,7 +17,7 @@ message Task {
     string description = 3;
     bool completed = 4;
     string created_at = 5;
-    string update_at = 6;
+    string updated_at = 6;
 }
 
 message CreateTaskRequest {
@@ -30,9 +29,7 @@ message GetTaskRequest {
     int64 id = 1;
 }
 
-message ListTasksRequest {
-    string filter = 1;
-}
+message ListTasksRequest {}
 
 message ListTasksResponse {
     repeated Task tasks = 1;
