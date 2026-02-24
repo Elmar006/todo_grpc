@@ -226,6 +226,7 @@ message ListTasksRequest {
 - Mock-объекты для зависимости service слоя
 
 ### Создание CI/CD пайплайнов и автоматический деплой
+- .github/workkflow
 
 Используемые инструменты:
 
